@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import Link from "next/link";
 import {
   Building2,
@@ -27,10 +29,25 @@ const CATEGORY_ICONS: Record<string, React.ElementType> = {
   Plane,
 };
 
+const STATIC_CATEGORIES = [
+  { id: "1", name: "Hôtellerie de luxe", slug: "hotellerie-luxe", description: "Palaces, hôtels 5 étoiles et suites privées", icon: "Building2", order: 1 },
+  { id: "2", name: "Chauffeur privé", slug: "chauffeur-prive", description: "Transferts VIP et mise à disposition", icon: "Car", order: 2 },
+  { id: "3", name: "Restauration premium", slug: "restauration-premium", description: "Tables étoilées et chefs privés", icon: "UtensilsCrossed", order: 3 },
+  { id: "4", name: "Événementiel privé", slug: "evenementiel-prive", description: "Organisation d'événements exclusifs", icon: "Sparkles", order: 4 },
+  { id: "5", name: "Bien-être & Spa", slug: "bien-etre-spa", description: "Soins premium et retraites wellness", icon: "Flower2", order: 5 },
+  { id: "6", name: "Shopping & Personal Shopper", slug: "personal-shopper", description: "Accompagnement shopping luxe", icon: "ShoppingBag", order: 6 },
+  { id: "7", name: "Expériences exclusives", slug: "experiences-exclusives", description: "Aventures uniques et accès privés", icon: "Star", order: 7 },
+  { id: "8", name: "Travel Planning", slug: "travel-planning", description: "Voyages sur-mesure et itinéraires premium", icon: "Plane", order: 8 },
+];
+
 export default async function HomePage() {
-  const categories = await db.category.findMany({
-    orderBy: { order: "asc" },
-  });
+  let categories = STATIC_CATEGORIES;
+  try {
+    const dbCategories = await db.category.findMany({ orderBy: { order: "asc" } });
+    if (dbCategories.length > 0) categories = dbCategories;
+  } catch {
+    // fallback sur les catégories statiques si DB indisponible
+  }
 
   return (
     <div className="flex min-h-screen flex-col">
