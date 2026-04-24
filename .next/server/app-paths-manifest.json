@@ -1,9 +1,0 @@
-{
-  "/(admin)/admin/page": "app/(admin)/admin/page.js",
-  "/(admin)/admin/demandes/[id]/page": "app/(admin)/admin/demandes/[id]/page.js",
-  "/(admin)/admin/demandes/page": "app/(admin)/admin/demandes/page.js",
-  "/(admin)/admin/partenaires/page": "app/(admin)/admin/partenaires/page.js",
-  "/(admin)/admin/partenaires/nouveau/page": "app/(admin)/admin/partenaires/nouveau/page.js",
-  "/(admin)/admin/clients/page": "app/(admin)/admin/clients/page.js",
-  "/(marketing)/page": "app/(marketing)/page.js"
-}
