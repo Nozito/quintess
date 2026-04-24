@@ -1,0 +1,188 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  CLIENT
+  PARTNER
+  ADMIN
+}
+
+enum RequestStatus {
+  PENDING
+  REVIEWING
+  MATCHED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum UrgencyLevel {
+  STANDARD
+  PRIORITAIRE
+  URGENT
+  IMMEDIAT
+}
+
+enum PartnerStatus {
+  PENDING
+  VERIFIED
+  SUSPENDED
+}
+
+enum BudgetRange {
+  ACCESSIBLE
+  PREMIUM
+  LUXE
+  ULTRA_LUXE
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  password  String
+  role      Role     @default(CLIENT)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  clientProfile  ClientProfile?
+  partnerProfile PartnerProfile?
+  messages       Message[]
+
+  @@map("users")
+}
+
+model ClientProfile {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  phone     String?
+  city      String?
+  onboarded Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  requests ConciergeRequest[]
+
+  @@map("client_profiles")
+}
+
+model Category {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  slug        String   @unique
+  description String?
+  icon        String
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  partners PartnerProfile[]
+  requests ConciergeRequest[]
+
+  @@map("categories")
+}
+
+model PartnerProfile {
+  id           String        @id @default(cuid())
+  userId       String        @unique
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  companyName  String
+  description  String
+  shortBio     String
+  city         String
+  zone         String?
+  categoryId   String
+  category     Category      @relation(fields: [categoryId], references: [id])
+  budgetRange  BudgetRange
+  services     String[]
+  availability String?
+  status       PartnerStatus @default(PENDING)
+  verifiedAt   DateTime?
+  rating       Float         @default(0)
+  reviewCount  Int           @default(0)
+  imageUrl     String?
+  website      String?
+  phone        String?
+  tags         String[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  recommendations  Recommendation[]
+  assignedRequests ConciergeRequest[]
+
+  @@map("partner_profiles")
+}
+
+model ConciergeRequest {
+  id                String         @id @default(cuid())
+  clientId          String
+  client            ClientProfile  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  categoryId        String
+  category          Category       @relation(fields: [categoryId], references: [id])
+  title             String
+  description       String
+  city              String
+  desiredDate       DateTime?
+  budgetRange       BudgetRange
+  urgency           UrgencyLevel   @default(STANDARD)
+  status            RequestStatus  @default(PENDING)
+  assignedPartnerId String?
+  assignedPartner   PartnerProfile? @relation(fields: [assignedPartnerId], references: [id])
+  adminNotes        String?
+  completedAt       DateTime?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  recommendations Recommendation[]
+  updates         RequestUpdate[]
+  messages        Message[]
+
+  @@map("concierge_requests")
+}
+
+model Recommendation {
+  id           String           @id @default(cuid())
+  requestId    String
+  request      ConciergeRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  partnerId    String
+  partner      PartnerProfile   @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+  score        Float
+  matchReasons String[]
+  rank         Int
+  isSelected   Boolean          @default(false)
+  createdAt    DateTime         @default(now())
+
+  @@unique([requestId, partnerId])
+  @@map("recommendations")
+}
+
+model RequestUpdate {
+  id         String           @id @default(cuid())
+  requestId  String
+  request    ConciergeRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  status     RequestStatus?
+  note       String
+  isInternal Boolean          @default(false)
+  createdAt  DateTime         @default(now())
+
+  @@map("request_updates")
+}
+
+model Message {
+  id        String           @id @default(cuid())
+  requestId String
+  request   ConciergeRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  senderId  String
+  sender    User             @relation(fields: [senderId], references: [id])
+  content   String
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  @@map("messages")
+}
