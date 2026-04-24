@@ -29,7 +29,7 @@ const CATEGORY_ICONS: Record<string, React.ElementType> = {
   Plane,
 };
 
-const STATIC_CATEGORIES = [
+const STATIC_CATEGORIES: { id: string; name: string; slug: string; description: string | null; icon: string; order: number }[] = [
   { id: "1", name: "Hôtellerie de luxe", slug: "hotellerie-luxe", description: "Palaces, hôtels 5 étoiles et suites privées", icon: "Building2", order: 1 },
   { id: "2", name: "Chauffeur privé", slug: "chauffeur-prive", description: "Transferts VIP et mise à disposition", icon: "Car", order: 2 },
   { id: "3", name: "Restauration premium", slug: "restauration-premium", description: "Tables étoilées et chefs privés", icon: "UtensilsCrossed", order: 3 },
